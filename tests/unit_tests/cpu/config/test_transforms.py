@@ -29,16 +29,16 @@ from torchtitan.models.common.async_linear import (
 )
 from torchtitan.models.common.attention import (
     FlexInnerAttention,
+    MLAFlexInnerAttention,
     SlidingWindowFlexInnerAttention,
-    VarlenInnerAttention,
 )
 from torchtitan.models.common.attention.cp_attention import (
     KVAllGatherCPFlexInnerAttention,
     KVAllGatherCPSlidingWindowFlexInnerAttention,
     UlyssesCPFlexInnerAttention,
     UlyssesCPSlidingWindowFlexInnerAttention,
-    UlyssesCPVarlenInnerAttention,
 )
+from torchtitan.models.common.attention.cp_mla import KVAllGatherCPMLAFlexInnerAttention
 from torchtitan.models.common.linear import (
     ColumnParallelLinear,
     Linear,
@@ -563,12 +563,12 @@ class TestTransformModel(unittest.TestCase):
             deepseek_v3_debugmodel_mtp,
         )
 
-        model = deepseek_v3_debugmodel_mtp().model
+        model = deepseek_v3_debugmodel_mtp(attn_backend="flex").model
         assert isinstance(model, MTPDecoder.Config)
 
         ContextParallelTransform(
             inner_attention_map={
-                VarlenInnerAttention: UlyssesCPVarlenInnerAttention,
+                MLAFlexInnerAttention: KVAllGatherCPMLAFlexInnerAttention,
             }
         ).transform(model)
 
@@ -577,7 +577,7 @@ class TestTransformModel(unittest.TestCase):
             for layer in layers:
                 self.assertIsInstance(
                     layer.attention.inner_attention,
-                    UlyssesCPVarlenInnerAttention.Config,
+                    KVAllGatherCPMLAFlexInnerAttention.Config,
                 )
 
     def test_lora_runs_after_context_parallelism(self):

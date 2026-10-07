@@ -534,7 +534,7 @@ class TestTransformModel(unittest.TestCase):
 
         ContextParallelTransform(
             inner_attention_map={
-                FlexInnerAttention: KVAllGatherCPFlexInnerAttention,
+                MLAFlexInnerAttention: KVAllGatherCPMLAFlexInnerAttention,
                 InnerKDA: ContextParallelInnerKDA,
             }
         ).transform(model)
@@ -548,7 +548,7 @@ class TestTransformModel(unittest.TestCase):
             if layer.attention is not None:
                 self.assertIsInstance(
                     layer.attention.inner_attention,
-                    KVAllGatherCPFlexInnerAttention.Config,
+                    KVAllGatherCPMLAFlexInnerAttention.Config,
                 )
             else:
                 assert layer.delta_attention is not None

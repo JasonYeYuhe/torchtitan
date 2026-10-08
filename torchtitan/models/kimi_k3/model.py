@@ -31,12 +31,7 @@ from torchtitan.models.common import FeedForward, Linear
 from torchtitan.models.common.attention import (
     AttentionMetadata,
     AttentionMetadataMap,
-    BaseAttention,
-    FlexAttentionMetadata,
     LinearAttentionMetadata,
-    local_head_split,
-    VarlenAttentionMetadata,
-    VarlenInnerAttention,
 )
 from torchtitan.models.common.attention.kda import KDA
 from torchtitan.models.common.decoder import Decoder

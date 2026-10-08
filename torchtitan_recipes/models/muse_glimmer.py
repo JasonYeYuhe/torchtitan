@@ -26,17 +26,17 @@ from torchtitan.distributed.context_parallel import (
     HeadTailCPLoadBalancer,
 )
 from torchtitan.models.common.attention import (
+    AttentionBackend,
     FlexInnerAttention,
-    InnerAttention,
     SlidingWindowFlexInnerAttention,
     VarlenInnerAttention,
 )
 from torchtitan.models.common.attention.cp_attention import (
-    KVAllGatherCPFlexInnerAttention,
-    KVAllGatherCPSlidingWindowFlexInnerAttention,
-    UlyssesCPFlexInnerAttention,
-    UlyssesCPSlidingWindowFlexInnerAttention,
-    UlyssesCPVarlenInnerAttention,
+    KVAllGatherFlexInnerAttention,
+    KVAllGatherSlidingWindowFlexInnerAttention,
+    UlyssesFlexInnerAttention,
+    UlyssesSlidingWindowFlexInnerAttention,
+    UlyssesVarlenInnerAttention,
 )
 from torchtitan.models.common.config_utils import decoder_vocab_size
 from torchtitan.models.muse_glimmer import build_model_config
@@ -95,7 +95,7 @@ def muse_glimmer_30b_bf16_optimizer_states() -> Trainer.Config:
 
 def _muse_glimmer_30b_cp(
     *,
-    inner_attention_map: Mapping[type[InnerAttention], type[InnerAttention]],
+    inner_attention_map: Mapping[type[AttentionBackend], type[AttentionBackend]],
     cp_degree: int,
     load_balancer: ContextParallelLoadBalancer.Config | None,
 ) -> Trainer.Config:
@@ -113,9 +113,9 @@ def muse_glimmer_30b_allgather_cp8() -> Trainer.Config:
     """Muse Glimmer 30B with all-gather CP degree 8."""
     return _muse_glimmer_30b_cp(
         inner_attention_map={
-            FlexInnerAttention: KVAllGatherCPFlexInnerAttention,
+            FlexInnerAttention: KVAllGatherFlexInnerAttention,
             SlidingWindowFlexInnerAttention: (
-                KVAllGatherCPSlidingWindowFlexInnerAttention
+                KVAllGatherSlidingWindowFlexInnerAttention
             ),
         },
         cp_degree=8,
@@ -130,8 +130,8 @@ def muse_glimmer_30b_ulysses_cp2() -> Trainer.Config:
     """
     return _muse_glimmer_30b_cp(
         inner_attention_map={
-            FlexInnerAttention: UlyssesCPFlexInnerAttention,
-            SlidingWindowFlexInnerAttention: (UlyssesCPSlidingWindowFlexInnerAttention),
+            FlexInnerAttention: UlyssesFlexInnerAttention,
+            SlidingWindowFlexInnerAttention: (UlyssesSlidingWindowFlexInnerAttention),
         },
         cp_degree=2,
         # Ulysses does not support token reordering.
@@ -156,9 +156,7 @@ def muse_glimmer_30b_ulysses_varlen_cp2() -> Trainer.Config:
         config,
         [
             ContextParallelTransform(
-                inner_attention_map={
-                    VarlenInnerAttention: UlyssesCPVarlenInnerAttention
-                }
+                inner_attention_map={VarlenInnerAttention: UlyssesVarlenInnerAttention}
             )
         ],
     )

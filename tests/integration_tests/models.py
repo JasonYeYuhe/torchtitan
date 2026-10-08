@@ -19,14 +19,14 @@ from torchtitan.distributed.activation_checkpoint import RegionAC, SelectiveAC
 from torchtitan.distributed.context_parallel import PTRRFlexAttentionCPLoadBalancer
 from torchtitan.models.common.attention import (
     FlexInnerAttention,
-    MLAFlexInnerAttention,
+    MLAAttention,
     SlidingWindowFlexInnerAttention,
 )
 from torchtitan.models.common.attention.cp_attention import (
-    KVAllGatherCPFlexInnerAttention,
-    KVAllGatherCPSlidingWindowFlexInnerAttention,
+    KVAllGatherFlexInnerAttention,
+    KVAllGatherSlidingWindowFlexInnerAttention,
 )
-from torchtitan.models.common.attention.cp_mla import KVAllGatherCPMLAFlexInnerAttention
+from torchtitan.models.common.attention.cp_mla import KVAllGatherMLAFlexAttention
 from torchtitan.trainer import Trainer
 from torchtitan_recipes.tests import _set_spmd_typechecking
 from torchtitan_recipes.tests.models.deepseek_v3 import (
@@ -78,9 +78,7 @@ def llama3_debugmodel_fsdp2_tp2_cp2() -> Trainer.Config:
         config,
         [
             ContextParallelTransform(
-                inner_attention_map={
-                    FlexInnerAttention: KVAllGatherCPFlexInnerAttention
-                }
+                inner_attention_map={FlexInnerAttention: KVAllGatherFlexInnerAttention}
             )
         ],
     )
@@ -139,9 +137,7 @@ def deepseek_v3_debugmodel_mtp_cp2(
         config,
         [
             ContextParallelTransform(
-                inner_attention_map={
-                    MLAFlexInnerAttention: KVAllGatherCPMLAFlexInnerAttention
-                }
+                inner_attention_map={MLAAttention: KVAllGatherMLAFlexAttention}
             )
         ],
     )
@@ -181,9 +177,7 @@ def deepseek_v3_debugmodel_fsdp2_tp2_cp2_ep8() -> Trainer.Config:
         config,
         [
             ContextParallelTransform(
-                inner_attention_map={
-                    MLAFlexInnerAttention: KVAllGatherCPMLAFlexInnerAttention
-                }
+                inner_attention_map={MLAAttention: KVAllGatherMLAFlexAttention}
             )
         ],
     )
@@ -207,9 +201,7 @@ def deepseek_v3_debugmodel_fsdp2_cp2_pp2_ep4() -> Trainer.Config:
         config,
         [
             ContextParallelTransform(
-                inner_attention_map={
-                    MLAFlexInnerAttention: KVAllGatherCPMLAFlexInnerAttention
-                }
+                inner_attention_map={MLAAttention: KVAllGatherMLAFlexAttention}
             )
         ],
     )
@@ -273,9 +265,7 @@ def qwen3_debugmodel_moe_param_groups_fsdp2_tp2_cp2_ep8() -> Trainer.Config:
         config,
         [
             ContextParallelTransform(
-                inner_attention_map={
-                    FlexInnerAttention: KVAllGatherCPFlexInnerAttention
-                }
+                inner_attention_map={FlexInnerAttention: KVAllGatherFlexInnerAttention}
             )
         ],
     )
@@ -301,9 +291,7 @@ def qwen3_debugmodel_fsdp2_tp2_cp2(
         config,
         [
             ContextParallelTransform(
-                inner_attention_map={
-                    FlexInnerAttention: KVAllGatherCPFlexInnerAttention
-                }
+                inner_attention_map={FlexInnerAttention: KVAllGatherFlexInnerAttention}
             )
         ],
     )
@@ -397,9 +385,9 @@ def gpt_oss_debugmodel_flex_fsdp2_cp2_pp2_ep4_sac() -> Trainer.Config:
         [
             ContextParallelTransform(
                 inner_attention_map={
-                    FlexInnerAttention: KVAllGatherCPFlexInnerAttention,
+                    FlexInnerAttention: KVAllGatherFlexInnerAttention,
                     SlidingWindowFlexInnerAttention: (
-                        KVAllGatherCPSlidingWindowFlexInnerAttention
+                        KVAllGatherSlidingWindowFlexInnerAttention
                     ),
                 }
             )
@@ -492,9 +480,9 @@ def muse_glimmer_debugmodel_fsdp2_tp2_cp2() -> Trainer.Config:
         [
             ContextParallelTransform(
                 inner_attention_map={
-                    FlexInnerAttention: KVAllGatherCPFlexInnerAttention,
+                    FlexInnerAttention: KVAllGatherFlexInnerAttention,
                     SlidingWindowFlexInnerAttention: (
-                        KVAllGatherCPSlidingWindowFlexInnerAttention
+                        KVAllGatherSlidingWindowFlexInnerAttention
                     ),
                 }
             )
@@ -534,9 +522,9 @@ def muse_glimmer_debugmodel_mm_tp2_cp2_pp2() -> Trainer.Config:
         [
             ContextParallelTransform(
                 inner_attention_map={
-                    FlexInnerAttention: KVAllGatherCPFlexInnerAttention,
+                    FlexInnerAttention: KVAllGatherFlexInnerAttention,
                     SlidingWindowFlexInnerAttention: (
-                        KVAllGatherCPSlidingWindowFlexInnerAttention
+                        KVAllGatherSlidingWindowFlexInnerAttention
                     ),
                 }
             )
